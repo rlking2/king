@@ -1,14 +1,21 @@
 # 母项目规范 — Agent 项目
 
 > 本文件是**母项目**的固定规则，由 DSH 自动加载到本目录树下的每次会话（依赖根目录的 `.git` 作为项目根锚点）。
-> 它只放**固定规则、结构约定和路由**。**不写当前进度、临时风险或逐次日志** —— 那些在 `_母项目/PROJECT_INDEX.md` 和子项目的 `docs/context/`。
+> 它只放**固定规则、结构约定和路由**。**不写当前进度、临时风险或逐次日志** —— 那些在 `%USERPROFILE%\Desktop\Agent 项目\_母项目\PROJECT_INDEX.md` 和子项目的 `docs/context/`。
+>
+> ⚠️ **路径约定**：本文件中指向**母项目**的路径一律写**绝对路径**。
+> 原因：子项目会话的 cwd 是**子项目目录**而不是工作区根，写 `_母项目/...` 会被解析成
+> `<子项目>\_母项目\...` 而**必然失败**（已实测）。子项目**内部**的路径（`docs/context/NOW.md` 等）仍用相对路径。
+>
+> ⚠️ **工具用法（实测）**：`read` 用绝对路径可以；`glob` 找母项目时**绝对目录要放 `path` 参数**，
+> 把绝对路径写进 `pattern` 会返回 `No files found`（已复现，非偶发）；`grep` 的 `path` 参数接受绝对路径。
 
 ## 这个工作区是什么
 
 `Agent 项目` 是**母项目**，本身不实现业务。它只做三件事：
 
-1. 沉淀所有子项目共用的**规范**（本文件 + `_母项目/AI项目管理细则.txt`）
-2. 提供**新项目脚手架**（`_母项目/_模板/` + `_母项目/新建项目.ps1`）
+1. 沉淀所有子项目共用的**规范**（本文件 + `%USERPROFILE%\Desktop\Agent 项目\_母项目\AI项目管理细则.txt`）
+2. 提供**新项目脚手架**（`%USERPROFILE%\Desktop\Agent 项目\_母项目\_模板\` + `%USERPROFILE%\Desktop\Agent 项目\_母项目\新建项目.ps1`）
 3. 维护**跨项目记忆**（Obsidian：`%USERPROFILE%\Documents\Obsidian Vault\DSH`）
 
 新项目一律在本目录下新建，不要另开工作区。
@@ -17,7 +24,7 @@
 
 ```
 Agent 项目\                     <- 工作区根，也是 DSH 的「项目根」
-├─ .git\                        <- 仅是「项目根」锚点。未 add、未 commit
+├─ .git\                        <- 仅是「项目根」锚点
 ├─ AGENTS.md                    <- 本文件。必须在根，否则子目录会话加载不到
 ├─ .gitignore                   <- 必须在根，/* 规则才作用于根层
 ├─ _母项目\                     <- 母项目的全部内容都在这一个文件夹里
@@ -44,7 +51,7 @@ Agent 项目\                     <- 工作区根，也是 DSH 的「项目根�
 
 新项目建在**工作区根**下（`_母项目` 的同级），不是建在 `_母项目` 里面。
 
-生成后**按顺序读**：`AGENTS.md`（自动加载）→ `PROJECT_INDEX.md` → 当前任务需要的**单个**专题文件。
+生成后**按顺序读**：`AGENTS.md`（自动加载）→ 项目自己的 `PROJECT_INDEX.md` → 当前任务需要的**单个**专题文件。
 
 ## 标准项目结构
 
@@ -64,12 +71,12 @@ Agent 项目\                     <- 工作区根，也是 DSH 的「项目根�
 ## 上下文加载顺序
 
 1. 自动加载的 `AGENTS.md`（本文件）
-2. 子项目的 `PROJECT_INDEX.md`
+2. 当前项目的 `PROJECT_INDEX.md`
 3. 按任务需要读**单个**专题文件（见下表）
 
 | 你要做的事 | 读 |
 |---|---|
-| 母项目自身状况 | `_母项目/PROJECT_INDEX.md` |
+| 母项目自身状况 | `%USERPROFILE%\Desktop\Agent 项目\_母项目\PROJECT_INDEX.md` |
 | 开发、排期 | `docs/context/NOW.md` |
 | 找文件、多版本、同步发布 | `docs/context/MAP.md` |
 | 运行、验收、回滚 | `docs/context/RUNBOOK.md` |
@@ -94,15 +101,18 @@ Agent 项目\                     <- 工作区根，也是 DSH 的「项目根�
 本机**只有 Windows PowerShell 5.1**，没有 PowerShell 7。它读 `.ps1` 时默认按 ANSI(GBK) 解码，
 所以**含中文且无 BOM 的 `.ps1` 会直接语法报错**（`The string is missing the terminator`），不只是乱码。
 
-**任何写入或编辑 `_母项目/新建项目.ps1` 之后，必须补回 BOM**：
+**任何写入或编辑 `%USERPROFILE%\Desktop\Agent 项目\_母项目\新建项目.ps1` 之后，必须补回 BOM**：
 
 ```powershell
-$p = '_母项目\新建项目.ps1'
+$p = '%USERPROFILE%\Desktop\Agent 项目\_母项目\新建项目.ps1'
 $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($false)))
 [System.IO.File]::WriteAllText($p, $t, (New-Object System.Text.UTF8Encoding($true)))
 ```
 
 `.md` / `.txt` 不需要 BOM（DSH 按 UTF-8 读）。**只有 `.ps1` 需要。**
+
+> 实测记录：本陷阱已**两次**触发（第 2 轮批量替换、第 3 轮编辑脚本），两次都是 `edit`/`write` 类操作抹掉 BOM。
+> 补回后均正常。**改完这个脚本必须立刻补 BOM 并核验前三字节为 `EF BB BF`。**
 
 ## 记录纪律
 
@@ -138,7 +148,8 @@ $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($fal
 
 ## 详细规范
 
-- 完整管理细则：`_母项目/AI项目管理细则.txt`
-- 跨项目记忆与路由：Obsidian `DSH/AGENTS.md`
-- 母项目自身说明与审计记录：`_母项目/README_母项目说明.md`
-- 母项目索引：`_母项目/PROJECT_INDEX.md`
+- 完整管理细则：`%USERPROFILE%\Desktop\Agent 项目\_母项目\AI项目管理细则.txt`
+- 跨项目记忆与路由：`%USERPROFILE%\Documents\Obsidian Vault\DSH\AGENTS.md`
+- 母项目自身说明与审计记录：`%USERPROFILE%\Desktop\Agent 项目\_母项目\README_母项目说明.md`
+- 母项目索引：`%USERPROFILE%\Desktop\Agent 项目\_母项目\PROJECT_INDEX.md`
+- 母项目逐轮记录：`%USERPROFILE%\Desktop\Agent 项目\_母项目\docs\history\`

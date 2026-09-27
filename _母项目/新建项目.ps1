@@ -81,7 +81,8 @@ Get-ChildItem -LiteralPath $TargetDir -Recurse -File -Force | ForEach-Object {
     $new  = $text.Replace('{{PROJECT_NAME}}', $Name).
                  Replace('{{PROJECT_DESC}}', $Description).
                  Replace('{{CREATED_DATE}}', $CreatedDate).
-                 Replace('{{PROJECT_PATH}}', $TargetDir)
+                 Replace('{{PROJECT_PATH}}', $TargetDir).
+                 Replace('{{MOTHER_ROOT}}', $MotherRoot)
     if ($new -ne $text) {
         [System.IO.File]::WriteAllText($_.FullName, $new, $NoBom)
         $replaced++

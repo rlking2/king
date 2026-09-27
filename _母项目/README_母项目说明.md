@@ -46,6 +46,27 @@ DSH 只加载 **「项目根 → 当前会话目录」** 这条链上的 `AGENTS
 所以这两个文件必须在根。`.gitignore` 同理：`/*` 规则只有在根层才作用域正确。
 `git init` 本身**只是一个锚点**，不是要你把现有项目提交进去。
 
+### ⚠️ 由此带来的第二层后果：子项目会话里**不能用相对路径访问母项目**
+
+这是 2026-09-27 一轮实测发现的（详见 [`docs/history/2026-09/round-03.md`](docs/history/2026-09/round-03.md)）。
+
+`AGENTS.md` 走的是「项目根 → cwd」链，能跨过子项目；但 **`read`/`glob`/`grep` 走的是 cwd**。
+所以在 `Agent 项目\某项目\` 里开会话时：
+
+| 写法 | 结果 |
+|---|---|
+| `read "_母项目/PROJECT_INDEX.md"` | ❌ 被解析成 `某项目\_母项目\PROJECT_INDEX.md` → not found |
+| `read "%USERPROFILE%\Desktop\Agent 项目\_母项目\PROJECT_INDEX.md"` | ✅ 可以 |
+| `glob` 把绝对路径写进 `pattern` | ❌ `No files found`（实测复现，非偶发） |
+| `glob` 绝对目录放进 `path` 参数 | ✅ 可以 |
+| `grep` 的 `path` 用绝对路径 | ✅ 可以 |
+
+**所以**：根 `AGENTS.md` 里指向母项目的路径已全部改为**绝对路径**；
+脚手架生成的每个项目，其 `AGENTS.md` 会自动带上「母项目指针」节，写明绝对路径和上述工具用法。
+新项目不必再踩这个坑。
+
+（注意这条**只能靠改规范解决，不能靠"养成用绝对路径的习惯"** —— 这正是 round-03 的核心结论。）
+
 ## 怎么新建一个项目
 
 ```powershell
