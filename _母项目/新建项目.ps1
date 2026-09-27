@@ -20,6 +20,12 @@
 .PARAMETER Git
     顺带在新项目里执行 git init（仅 init，不 add、不 commit）。
 
+    ⚠️ 慎用。DSH 判定「项目根」的方式是：从 cwd 向上找**最近的** .git
+    （dsh-agent-instructions 的 findProjectRoot），指令链只覆盖「项目根 → cwd」。
+    新项目一旦自带 .git，项目根就变成新项目自己，
+    母项目根 AGENTS.md（母项目规范）将**不再自动加载**。
+    不带 .git 时项目根 = 工作区根，母项目规范与项目 AGENTS.md 会一起自动加载。
+
 .EXAMPLE
     cd "%USERPROFILE%\Desktop\Agent 项目\_母项目"
     .\新建项目.ps1 -Name "我的项目" -Description "解决某某问题"
@@ -114,6 +120,8 @@ if ($Git) {
         & git init --quiet
         if ($LASTEXITCODE -eq 0) {
             Write-Host '==> 已执行 git init（未 add、未 commit）' -ForegroundColor Green
+            Write-Warning '本项目现在自带 .git —— 项目根变成本项目自己，母项目规范将不再自动加载。'
+            Write-Warning '子项目会话里必须手工 read 母项目 AGENTS.md；想恢复自动加载请删掉本项目的 .git。'
         }
         else {
             Write-Warning "git init 退出码 $LASTEXITCODE —— 请手工检查。"

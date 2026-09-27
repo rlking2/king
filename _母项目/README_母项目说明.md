@@ -149,6 +149,16 @@ $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($fal
 (([System.IO.File]::ReadAllBytes('_母项目\新建项目.ps1'))[0..2] | % { $_.ToString('X2') }) -join ' '
 ```
 
+### 附：`git add` 的 CRLF 警告是虚警（2026-09-27 实测）
+
+`core.autocrlf=true` 会让 `git add` 报 `LF will be replaced by CRLF`。
+**已实测为虚警**：克隆后 `.ps1` 行尾变为 CRLF，但 **BOM 保留、中文完好、脚本能正常跑**。无需处理。
+
+### 附：触发计数（截至 2026-09-27）
+
+本 BOM 陷阱已**三次**触发，全部由 `edit`/`write` 类操作抹掉 BOM 引起：
+第 2 轮批量替换、第 3 轮编辑脚本、第 4 轮编辑脚本。三次补回后均正常。
+
 ## 四个决定（已定，记录在此备查）
 
 | 决定 | 选择 | 理由 |
