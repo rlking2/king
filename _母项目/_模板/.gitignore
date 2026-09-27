@@ -1,0 +1,34 @@
+# 中间产物 —— 不进版本库
+artifacts/
+*.log
+
+# 依赖与构建输出
+node_modules/
+dist/
+dist-installer/
+build/
+out/
+target/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 编辑器与系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 本地覆盖 —— 不进库
+AGENTS.local.md
+CLAUDE.local.md
+*.local.*
+
+# 凭据与设备信息 —— 绝不入库
+.env
+.env.*
+*.key
+*.pem
+*.pfx
