@@ -173,8 +173,8 @@ $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($fal
 
 `桌宠/`、`信号与系统实验/` 都是**规范之前**建立的，各有自己的习惯（`devlog/`、`notes_核心内容.md`）。重构它们风险大于收益，所以：
 
-> **2026-09-29 实测更新**：本节原列为三个项目，其中 `王国保卫战1重铸（ReBBBorn）+多倍速mod\` **已不在工作区根**
-> （去向未查证，只做过 `Agent 项目` 下深度 2 的递归匹配）。`AGENTS.md`、`PROJECT_INDEX.md` 与本文件布局图已同步为两个。
+> **2026-09-29 更新**：本节原列为三个项目，其中 `王国保卫战1重铸（ReBBBorn）+多倍速mod\` **已由用户删除**（当日确认），
+> `测试项目\` 同样已删除。`AGENTS.md`、`PROJECT_INDEX.md` 与本文件布局图已同步为两个。
 > 详见 [`docs/history/2026-09/round-05.md`](docs/history/2026-09/round-05.md)。
 
 - 母项目仓库通过 `.gitignore` 的 `/*` 规则**不跟踪**它们
