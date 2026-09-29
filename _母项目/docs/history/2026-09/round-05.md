@@ -36,8 +36,9 @@
 
 - `grep "王国|测试项目"` 限定 `*.md`：修正后 `AGENTS.md`、`PROJECT_INDEX.md`、`README_母项目说明.md` 三份命中 **0 处** ✅（仅剩本记录自身与历史归档中的**有意保留**记载）
 - `git diff --check`：**干净**（仅 CRLF 虚警，属已知项）✅
-- 体积实测（`Get-Item .Length`）：`PROJECT_INDEX.md` = **3895 B**（在 2–4 KB 上限内，余量约 200 B，**已接近**）、`AGENTS.md` = 11951 B
-- `git status --short`：`AGENTS.md`、`PROJECT_INDEX.md` 两个文件为 `M`（未提交）
+- 体积实测（`Get-Item .Length`）：`PROJECT_INDEX.md` 起初 = **3895 B**（在 2–4 KB 上限内，余量约 200 B，**已接近**）、`AGENTS.md` = 11951 B
+- **顺带治掉一个易飘字段**：索引原写「**6 次提交**」，本轮提交后立刻变成假值（实际 7 次）。已按 `e592ca3` 的既定方向改为「提交总数不在此写死，以 `git log` 为准」，从此每次提交不再需要回填索引
+- `git status --short`：修正期间两个文件为 `M`（未提交）；提交后工作树**干净**
 
 ## 四、扩展授权后的追加修正（同轮内完成）
 
