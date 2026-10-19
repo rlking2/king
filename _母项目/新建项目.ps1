@@ -27,11 +27,11 @@
     不带 .git 时项目根 = 工作区根，母项目规范与项目 AGENTS.md 会一起自动加载。
 
 .EXAMPLE
-    cd "%USERPROFILE%\Desktop\Agent 项目\_母项目"
+    cd "$env:USERPROFILE\Desktop\Agent 项目\_母项目"
     .\新建项目.ps1 -Name "我的项目" -Description "解决某某问题"
 
 .EXAMPLE
-    & "%USERPROFILE%\Desktop\Agent 项目\_母项目\新建项目.ps1" -Name "我的项目" -Git
+    & "$env:USERPROFILE\Desktop\Agent 项目\_母项目\新建项目.ps1" -Name "我的项目" -Git
 #>
 [CmdletBinding()]
 param(
@@ -132,7 +132,30 @@ if ($Git) {
     }
 }
 
-# ---------- 6. 摘要 ----------
+# ---------- 6. 自动登记到母项目记录 ----------
+# 幂等。只写 _母项目\项目清单.md 的标记块，不碰自动加载的 AGENTS.md。
+# 失败只告警、不中断 —— 项目已经生成好了，不该因为登记失败而回滚。
+$SyncScript = Join-Path $PSScriptRoot 'scripts\sync-projects.mjs'
+if (Test-Path -LiteralPath $SyncScript) {
+    Write-Host ''
+    Write-Host '==> 自动登记到母项目记录…' -ForegroundColor Cyan
+    try {
+        & node $SyncScript 2>&1 | ForEach-Object { Write-Host "    $_" }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "登记脚本退出码 $LASTEXITCODE —— 项目已生成，但母项目记录可能没更新。"
+            Write-Warning "请手工运行：node `"$SyncScript`""
+        }
+    }
+    catch {
+        Write-Warning "登记脚本调用失败：$($_.Exception.Message)"
+        Write-Warning "请手工运行：node `"$SyncScript`""
+    }
+}
+else {
+    Write-Warning "找不到登记脚本：$SyncScript —— 母项目记录未自动更新。"
+}
+
+# ---------- 7. 摘要 ----------
 Write-Host ''
 Write-Host "==> 完成：$TargetDir" -ForegroundColor Green
 Write-Host "    已替换占位符的文件数：$replaced"
@@ -150,6 +173,6 @@ Write-Host '下一步（必做，否则新项目等于没规范）：' -Foregrou
 Write-Host '  1. 填 AGENTS.md 里三处 TODO：代码约定 / 安全边界 / 最小验收'
 Write-Host '  2. 填 PROJECT_INDEX.md 的「权威版本」和「活动里程碑」'
 Write-Host "  3. 在 Obsidian 的 DSH\projects\ 建本项目的仪表盘页"
-Write-Host "  4. 把本项目登记到母项目的 PROJECT_INDEX.md「子项目」表"
+Write-Host '     （本项目已自动登记进母项目记录，无需手工登记）'
 Write-Host ''
 Write-Host '之后按 AGENTS.md -> PROJECT_INDEX.md -> 单个专题文件的顺序工作。'

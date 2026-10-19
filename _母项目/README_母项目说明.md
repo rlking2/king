@@ -20,22 +20,27 @@
 
 ```
 Agent 项目\                     ← 工作区根，也是 DSH 的「项目根」
-├─ .git\                        ← 仅是「项目根」锚点。未 add、未 commit
+├─ .git\                        ← 「项目根」锚点；本仓库同时跟踪规范与脚手架
 ├─ AGENTS.md                    ← 必须在根
 ├─ .gitignore                   ← 必须在根
 ├─ _母项目\                     ← 母项目的全部内容
 │  ├─ PROJECT_INDEX.md
 │  ├─ README_母项目说明.md       ← 本文件
 │  ├─ AI项目管理细则.txt
-│  ├─ 新建项目.ps1
+│  ├─ 新建项目.ps1              ← 生成后自动登记
 │  ├─ _模板\
+│  ├─ scripts\                  ← 同步引擎 sync-projects.mjs
+│  ├─ 项目清单.md               ← 【权威】子项目清单（脚本生成）
 │  └─ docs\history\
-├─ 桌宠\                        ← 现有项目（自带 .git）
-├─ 信号与系统实验\               ← 现有项目（保持原位）
-├─ 规范自检工具\                 ← 首个遵循本规范的脚手架项目
-├─ 信号与系统\                   ← 空目录（未登记，归属待定）
-└─ <新项目>\                    ← 以后在这里新建
+│
+└─ <子项目目录…>                 ← **不在此枚举**，清单见 `_母项目\项目清单.md`
 ```
+
+> ⚠️ 本文件**不再抄写子项目列表**。它以前和根 `AGENTS.md`、`PROJECT_INDEX.md` 各存一份，
+> 三份互相漂移（`round-05`、`round-06` 各花一整轮修）。现在只有
+> [`项目清单.md`](项目清单.md) 一份，且**由脚本生成**。
+>
+> 登记 / 更新：`node "$env:USERPROFILE\Desktop\Agent 项目\_母项目\scripts\sync-projects.mjs"`（幂等，已预先授权）
 
 ### 为什么 `AGENTS.md` 和 `.gitignore` 不能进 `_母项目\`
 
@@ -71,13 +76,13 @@ DSH 只加载 **「项目根 → 当前会话目录」** 这条链上的 `AGENTS
 ## 怎么新建一个项目
 
 ```powershell
-& "%USERPROFILE%\Desktop\Agent 项目\_母项目\新建项目.ps1" -Name "项目名" -Description "一句话说明要解决什么问题"
+& "$env:USERPROFILE\Desktop\Agent 项目\_母项目\新建项目.ps1" -Name "项目名" -Description "一句话说明要解决什么问题"
 ```
 
 或者先进去再跑：
 
 ```powershell
-cd "%USERPROFILE%\Desktop\Agent 项目\_母项目"
+cd "$env:USERPROFILE\Desktop\Agent 项目\_母项目"
 .\新建项目.ps1 -Name "项目名" -Description "一句话说明要解决什么问题"
 ```
 
@@ -152,8 +157,25 @@ $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($fal
 
 ### 附：`git add` 的 CRLF 警告是虚警（2026-09-27 实测）
 
+> **2026-10-19 更新**：仓库已设 `core.autocrlf=false`，行尾按原样入库（LF 保持 LF、CRLF 保持 CRLF），
+> 所以 `git add` **不再**报 CRLF 警告。下面这段保留为历史结论。
+
 `core.autocrlf=true` 会让 `git add` 报 `LF will be replaced by CRLF`。
 **已实测为虚警**：克隆后 `.ps1` 行尾变为 CRLF，但 **BOM 保留、中文完好、脚本能正常跑**。无需处理。
+
+### 公开仓库与脱敏（2026-10-19）
+
+母项目的版本库**已推到 GitHub 公开仓库** `https://github.com/rlking2/king`（`origin/main`）。
+
+| 项 | 做法 |
+|---|---|
+| 路径 | 原 `C:\Users\<用户名>\...` 全部换成 `%USERPROFILE%\...`；**工具不展开它**，要先用 `$env:USERPROFILE` 拼出绝对路径 |
+| 提交身份 | `rlking2@users.noreply.github.com`（noreply，避免真实邮箱进公开历史） |
+| 历史 | 整体重写以清掉旧路径/旧邮箱，**旧提交哈希因此全部失效** |
+| 回退 | 重写前的历史留在本地分支 `backup/pre-public`，**只本地、不推** |
+| 推送 | `git push origin main`（用系统 `credential.helper=manager`，首次会弹浏览器授权） |
+
+> 重写后**任何文档都不要再引用旧哈希**。里程碑按提交标题找：`git log --oneline --grep='第 [0-9]* 轮'`。
 
 ### 附：触发计数（截至 2026-09-27）
 
