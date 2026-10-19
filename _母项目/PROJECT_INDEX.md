@@ -13,6 +13,7 @@
 | 母项目 | `%USERPROFILE%\Desktop\Agent 项目` | **权威**。规范与脚手架的唯一来源 |
 | 跨项目记忆 | `%USERPROFILE%\Documents\Obsidian Vault\DSH` | **权威**。人员/项目摘要/跨项目待办的唯一来源 |
 | AI 人设 | `%USERPROFILE%\Desktop\Agent 项目\AGENTS.md` 的「AI 人设」节 | **权威**。`AI身份说明.txt` 已并入该节，不再单独维护 |
+| 规范版本 | git tag `v1.01` | **权威**。版本规则见 `../AGENTS.md`「版本约定」；对应提交 `git show v1.01` |
 
 ## 活动里程碑
 
@@ -35,6 +36,8 @@
 | 历史 | 2026-10-19 整体重写过（清旧路径/旧邮箱），因此**旧哈希全部失效**；重写前历史留在本地分支 `backup/pre-public`（**不推**） |
 
 里程碑以提交标题追溯：`git log --oneline --grep='第 [0-9]* 轮'`。
+
+**版本标签**：`git tag -n` —— 当前 **v1.01**（2026-10-19 基线）。每次完整改动一个版本，规则见 `../AGENTS.md`「版本约定」。
 
 > CRLF 警告的实测结论见 `README_母项目说明.md`。
 
