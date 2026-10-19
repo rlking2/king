@@ -173,7 +173,8 @@ $t = [System.IO.File]::ReadAllText($p, (New-Object System.Text.UTF8Encoding($fal
 | 提交身份 | `rlking2@users.noreply.github.com`（noreply，避免真实邮箱进公开历史） |
 | 历史 | 整体重写以清掉旧路径/旧邮箱，**旧提交哈希因此全部失效** |
 | 回退 | 重写前的历史留在本地分支 `backup/pre-public`，**只本地、不推** |
-| 推送 | `git push origin main`（用系统 `credential.helper=manager`，首次会弹浏览器授权） |
+| 推送 | `git push origin main`（凭据来自系统 `credential.helper=manager`；本机已存有 GitHub 凭据，实测未弹授权） |
+| 保险 | 本地 `pre-push` hook 拦截 `backup/*`，防止把公开前历史推出去（hook 不进版本库） |
 
 > 重写后**任何文档都不要再引用旧哈希**。里程碑按提交标题找：`git log --oneline --grep='第 [0-9]* 轮'`。
 
